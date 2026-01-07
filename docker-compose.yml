@@ -1,0 +1,45 @@
+services:
+  app:
+    image: php:8.2-apache
+    container_name: taxi
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html/taxi
+    depends_on:
+      - mysql
+    command: bash -c "
+        apt-get update &&
+        docker-php-ext-install pdo_mysql &&
+        apache2-foreground
+      "
+
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: TaxiUser@123
+      MYSQL_DATABASE: taxi
+      MYSQL_USER: TaxiUser
+      MYSQL_PASSWORD: TaxiUser@123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: TaxiUser
+      PMA_PASSWORD: TaxiUser@123
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
